@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy.typing import NDArray
 import pickle
+from scipy.spatial.distance import cdist
 
 ######################################################################
 #####     CHECK THE PARAMETERS     ########
@@ -34,13 +35,112 @@ def spectral(
     - ARI: float, adjusted Rand index
     - eigenvalues: eigenvalues of the Laplacian matrix
     """
+    def custom_k_means(data, k, max_iter=100, tol=1e-4):
+        n_samples, n_features = data.shape
+        # Initialize centroids by randomly selecting k points from the data
+        centroids = data[np.random.choice(n_samples, k, replace=False)]
+        
+        for _ in range(max_iter):
+            # Calculate distances from each data point to each centroid
+            dists = np.linalg.norm(data[:, np.newaxis] - centroids, axis=2)
+            # Assign clusters based on closest centroid
+            clusters = np.argmin(dists, axis=1)
 
-    computed_labels: NDArray[np.int32] | None = None
-    SSE: float | None = None
-    ARI: float | None = None
-    eigenvalues: NDArray[np.floating] | None = None
+            new_centroids = np.zeros((k, n_features))
+            for i in range(k):
+                # Extract points assigned to the current cluster
+                cluster_points = data[clusters == i]
+                if cluster_points.size > 0:
+                    new_centroids[i] = cluster_points.mean(axis=0)
+                else:
+                    # Reinitialize centroid to a random point from the data if the cluster is empty
+                    new_centroids[i] = data[np.random.choice(n_samples, 1, replace=False)].flatten()
+
+            # Check for convergence: if centroids do not change significantly, exit loop
+            if np.allclose(centroids, new_centroids, atol=tol):
+                break
+            centroids = new_centroids
+
+        return clusters, centroids
+
+
+    def calculate_sse(data, labels, centroids):
+        """
+        Calculate the Sum of Squared Errors (SSE) for given data and centroids.
+        
+        Parameters:
+            data (np.ndarray): The dataset.
+            labels (np.ndarray): Array of cluster labels for each data point.
+            centroids (np.ndarray): Array of centroids, one for each cluster.
+        
+        Returns:
+            float: The calculated SSE.
+        """
+        k = len(centroids)
+        SSE = 0
+        for i in range(k):
+            cluster_data = data[labels == i]
+            if cluster_data.size > 0:
+                SSE += np.sum((cluster_data - centroids[i])**2)
+        return SSE
+
+
+    def adjusted_rand_index(true_labels, pred_labels):
+        from scipy.special import comb
+        n = len(true_labels)
+        categories = np.unique(true_labels)
+        clusters = np.unique(pred_labels)
+
+        # Create contingency table
+        contingency = np.array([[np.sum((true_labels == cat) & (pred_labels == clus)) for clus in clusters] for cat in categories])
+        sum_comb_c = np.sum([comb(n_c, 2) for n_c in np.sum(contingency, axis=1)])
+        sum_comb_k = np.sum([comb(n_k, 2) for n_k in np.sum(contingency, axis=0)])
+        sum_comb = np.sum([comb(n_ij, 2) for n_ij in contingency.flatten()])
+        total_comb = comb(n, 2)
+        expected_comb = sum_comb_c * sum_comb_k / total_comb
+        max_comb = (sum_comb_c + sum_comb_k) / 2
+        
+        if total_comb == expected_comb:  # Prevent division by zero
+            return 0.0
+        else:
+            ARI = (sum_comb - expected_comb) / (max_comb - expected_comb)
+            return ARI
+
+
+    sigma = params_dict['sigma']
+    k = params_dict['k']
+
+    # Create the similarity matrix using the Gaussian kernel
+    dists = cdist(data, data, 'sqeuclidean')
+    W = np.exp(-dists / (2 * sigma**2))
+
+    # Create the diagonal matrix for the degrees of the nodes
+    D = np.diag(W.sum(axis=1))
+
+    # Create the Laplacian matrix
+    L = D - W
+
+    # Compute the eigenvalues and eigenvectors
+    eigenvalues, eigenvectors = np.linalg.eigh(L)
+
+    # Use the first k eigenvectors for clustering
+    V = eigenvectors[:, :k]
+    
+    # k-means on the rows of V
+    computed_labels, centroids = custom_k_means(V, k)
+
+   # Compute SSE, ensuring data is correctly sliced per cluster and centroids have correct dimension
+    SSE = calculate_sse(V, computed_labels, centroids)
+
+
+
+
+
+    # Compute ARI
+    ARI = adjusted_rand_index(labels, computed_labels)
 
     return computed_labels, SSE, ARI, eigenvalues
+
 
 
 def spectral_clustering():
@@ -50,6 +150,15 @@ def spectral_clustering():
     Returns:
         answers (dict): A dictionary containing the clustering results.
     """
+    def plot_clusters(data, labels, title):
+        fig, ax = plt.subplots()
+        scatter = ax.scatter(data[:, 0], data[:, 1], c=labels, cmap='viridis', s=25)
+        plt.colorbar(scatter, ax=ax)
+        ax.set_title(title)
+        ax.set_xlabel('Feature 1')
+        ax.set_ylabel('Feature 2')
+        ax.grid(True)
+        return fig 
 
     answers = {}
 
@@ -59,13 +168,66 @@ def spectral_clustering():
     # Work with the first 10,000 data points: data[0:10000]
     # Do a parameter study of this data using Spectral clustering.
     # Minimmum of 10 pairs of parameters ('sigma' and 'xi').
+    sse = []
+    ari = []
+    max_ari = 0
+    min_sse = 0
+    sigma_for_max_ari = 0
+    sigma_for_min_sse = 0
+    sigma = np.linspace(0.1, 10, 10)
+    k = 5
+    data = np.load('question1_cluster_data.npy')[:5000]
+    labels = np.load('question1_cluster_labels.npy')[:5000]
+    params_dict = {}
+    for i in range(len(sigma)):
+        params_dict['sigma'] = sigma[i]
+        params_dict['k'] = k
+        computed_labels, SSE, ARI, eigenvalues = spectral(data[:1000], labels[:1000], params_dict)
+        if i==0:
+            min_sse = SSE
+            sigma_for_min_sse = sigma[i]
+        elif SSE < min_sse:
+            min_sse = SSE
+            sigma_for_min_sse = sigma[i]
+        if ARI > max_ari:
+            max_ari = ARI
+            sigma_for_max_ari = sigma[i]
+        ari.append(ARI)
+        sse.append(SSE)
+
 
     # Create a dictionary for each parameter pair ('sigma' and 'xi').
     groups = {}
+    
+    max_ari_data = None
+    max_ari_labels = None
+    min_sse_data = None
+    min_sse_labels = None
 
+    final_sigma = sigma_for_max_ari
+    eigenvalues = np.array([])
+    
+    for i in range(5):
+        params_dict['sigma'] = final_sigma
+        params_dict['k'] = k
+        index_start = 1000 * i
+        index_end = 1000 * (i + 1) - 1
+        computed_labels, SSE, ARI, eigenvalue = spectral(data[index_start:index_end], labels[index_start:index_end], params_dict)
+        groups[i] = {"sigma": final_sigma, "ARI": ARI, "SSE": SSE}
+        eigenvalues = np.append(eigenvalues, eigenvalue, axis=0)
+        
+        if ARI > max_ari:
+            max_ari = ARI
+            max_ari_data = data[index_start:index_end]
+            max_ari_labels = computed_labels
+
+        if SSE < min_sse:
+            min_sse = SSE
+            min_sse_data = data[index_start:index_end]
+            min_sse_labels = computed_labels
     # For the spectral method, perform your calculations with 5 clusters.
     # In this cas,e there is only a single parameter, σ.
-
+    
     # data for data group 0: data[0:10000]. For example,
     # groups[0] = {"sigma": 0.1, "ARI": 0.1, "SSE": 0.1}
 
@@ -75,7 +237,7 @@ def spectral_clustering():
 
     # groups is the dictionary above
     answers["cluster parameters"] = groups
-    answers["1st group, SSE"] = {}
+    answers["1st group, SSE"] = groups[0]["SSE"]
 
     # Identify the cluster with the lowest value of ARI. This implies
     # that you set the cluster number to 5 when applying the spectral
@@ -90,34 +252,77 @@ def spectral_clustering():
     # Do the same for the cluster with the smallest value of SSE.
     # All plots must have x and y labels, a title, and the grid overlay.
 
+
+    sigmas = np.array([group["sigma"] for group in groups.values()])
+    ARIs = np.array([group["ARI"] for group in groups.values()])
+    SSEs = np.array([group["SSE"] for group in groups.values()])
+
+    # # Plotting clusters for max ARI and min SSE
+    # fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
+    # if max_ari_data is not None and max_ari_labels is not None:
+    #     plot_clusters(max_ari_data, max_ari_labels, "Clusters with Max ARI", ax1)
+    # if min_sse_data is not None and min_sse_labels is not None:
+    #     plot_clusters(min_sse_data, min_sse_labels, "Clusters with Min SSE", ax2)
+    # plt.show()
+
     # Plot is the return value of a call to plt.scatter()
-    plot_ARI = plt.scatter([1,2,3], [4,5,6])
-    plot_SSE = plt.scatter([1,2,3], [4,5,6])
-    answers["cluster scatterplot with largest ARI"] = plot_ARI
-    answers["cluster scatterplot with smallest SSE"] = plot_SSE
+    # plot_ARI, ax_ari = plt.subplots()
+    # sc_ari = ax_ari.scatter(sigmas, ARIs, c=ARIs, cmap='viridis')
+    # plt.colorbar(sc_ari, ax=ax_ari, label='Adjusted Rand Index (ARI)')
+    # ax_ari.set_title('Scatter Plot of Sigmas and ARIs')
+    # ax_ari.set_xlabel('Sigma')
+    # ax_ari.set_ylabel('ARI')
+    # ax_ari.grid(True)
+
+    # plot_SSE, ax_sse = plt.subplots()
+    # sc_sse = ax_sse.scatter(sigmas, SSEs, c=SSEs, cmap='plasma')
+    # plt.colorbar(sc_sse, ax=ax_sse, label='Sum of Squared Errors (SSE)')
+    # ax_sse.set_title('Scatter Plot of Sigmas and SSEs')
+    # ax_sse.set_xlabel('Sigma')
+    # ax_sse.set_ylabel('SSE')
+    # ax_sse.grid(True)
+
+    if max_ari_data is not None and max_ari_labels is not None:
+        plot_ARI = plot_clusters(max_ari_data, max_ari_labels, "Clusters with Max ARI")
+        answers["cluster scatterplot with largest ARI"] = plot_ARI
+    
+    if min_sse_data is not None and min_sse_labels is not None:
+        plot_SSE = plot_clusters(min_sse_data, min_sse_labels, "Clusters with Min SSE")
+        answers["cluster scatterplot with smallest SSE"] = plot_SSE
+
 
     # Plot of the eigenvalues (smallest to largest) as a line plot.
     # Use the plt.plot() function. Make sure to include a title, axis labels, and a grid.
-    plot_eig = plt.plot([1,2,3], [4,5,6])
+    plot_eig, ax_eig = plt.subplots()
+    ax_eig.plot(np.sort(eigenvalues), marker='o', linestyle='-')
+    ax_eig.set_title("Sorted Eigenvalues Plot")
+    ax_eig.set_xlabel("Index")
+    ax_eig.set_ylabel("Eigenvalue")
+    ax_eig.grid(True)
+    
     answers["eigenvalue plot"] = plot_eig
+
 
     # Pick the parameters that give the largest value of ARI, and apply these
     # parameters to datasets 1, 2, 3, and 4. Compute the ARI for each dataset.
     # Calculate mean and standard deviation of ARI for all five datasets.
 
     # A single float
-    answers["mean_ARIs"] = 0.
+    answers["mean_ARIs"] = np.mean(ARIs)
 
     # A single float
-    answers["std_ARIs"] = 0.
+    answers["std_ARIs"] = np.std(ARIs)
 
     # A single float
-    answers["mean_SSEs"] = 0.
+    answers["mean_SSEs"] = np.mean(SSEs)
 
     # A single float
-    answers["std_SSEs"] = 0.
+    answers["std_SSEs"] = np.std(SSEs)
 
     return answers
+
+
+
 
 
 # ----------------------------------------------------------------------
