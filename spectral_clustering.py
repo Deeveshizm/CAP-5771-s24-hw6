@@ -150,15 +150,6 @@ def spectral_clustering():
     Returns:
         answers (dict): A dictionary containing the clustering results.
     """
-    def plot_clusters(data, labels, title):
-        fig, ax = plt.subplots()
-        scatter = ax.scatter(data[:, 0], data[:, 1], c=labels, cmap='viridis', s=25)
-        plt.colorbar(scatter, ax=ax)
-        ax.set_title(title)
-        ax.set_xlabel('Feature 1')
-        ax.set_ylabel('Feature 2')
-        ax.grid(True)
-        return fig 
 
     answers = {}
 
@@ -211,10 +202,18 @@ def spectral_clustering():
         params_dict['sigma'] = final_sigma
         params_dict['k'] = k
         index_start = 1000 * i
-        index_end = 1000 * (i + 1) - 1
+        index_end = 1000 * (i + 1)
         computed_labels, SSE, ARI, eigenvalue = spectral(data[index_start:index_end], labels[index_start:index_end], params_dict)
         groups[i] = {"sigma": final_sigma, "ARI": ARI, "SSE": SSE}
         eigenvalues = np.append(eigenvalues, eigenvalue, axis=0)
+        
+        if i==0:
+            min_sse = SSE
+            min_sse_data = data[index_start:index_end]
+            min_sse_labels = computed_labels
+            max_ari = ARI
+            max_ari_data = data[index_start:index_end]
+            max_ari_labels = computed_labels
         
         if ARI > max_ari:
             max_ari = ARI
@@ -282,13 +281,25 @@ def spectral_clustering():
     # ax_sse.set_ylabel('SSE')
     # ax_sse.grid(True)
 
-    if max_ari_data is not None and max_ari_labels is not None:
-        plot_ARI = plot_clusters(max_ari_data, max_ari_labels, "Clusters with Max ARI")
-        answers["cluster scatterplot with largest ARI"] = plot_ARI
+    fig_ari, ax_ari = plt.subplots()
+    plot_ARI = ax_ari.scatter(max_ari_data[:, 0], max_ari_data[:, 1], c=max_ari_labels, cmap='viridis', s=25)
+    ax_ari.set_title('Clusters with Largest ARI')
+    ax_ari.set_xlabel('Feature 1')
+    ax_ari.set_ylabel('Feature 2')
+    fig_ari.colorbar(plot_ARI)  # Show color scale
+    plt.close(fig_ari)
+
+    answers["cluster scatterplot with largest ARI"] = plot_ARI
     
-    if min_sse_data is not None and min_sse_labels is not None:
-        plot_SSE = plot_clusters(min_sse_data, min_sse_labels, "Clusters with Min SSE")
-        answers["cluster scatterplot with smallest SSE"] = plot_SSE
+    fig_sse, ax_sse = plt.subplots()
+    plot_SSE = ax_sse.scatter(min_sse_data[:, 0], min_sse_data[:, 1], c=min_sse_labels, cmap='viridis', s=25)
+    ax_sse.set_title('Clusters with Smallest SSE')
+    ax_sse.set_xlabel('Feature 1')
+    ax_sse.set_ylabel('Feature 2')
+    fig_sse.colorbar(plot_SSE)  # Show color scale
+    plt.close(fig_sse)
+
+    answers["cluster scatterplot with smallest SSE"] = plot_SSE
 
 
     # Plot of the eigenvalues (smallest to largest) as a line plot.
