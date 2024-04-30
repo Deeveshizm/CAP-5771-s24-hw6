@@ -282,9 +282,9 @@ def spectral_clustering():
     # ax_sse.grid(True)
 
     plot_ARI = plt.scatter(max_ari_data[:, 0], max_ari_data[:, 1], c=max_ari_labels, cmap='viridis', s=25)
-    plt.set_title('Clusters with Largest ARI')
-    plt.set_xlabel('Feature 1')
-    plt.set_ylabel('Feature 2')
+    plt.title('Clusters with Largest ARI')
+    plt.xlabel('Feature 1')
+    plt.ylabel('Feature 2')
     plt.close()
 
     # fig_ari, ax_ari = plt.subplots()
