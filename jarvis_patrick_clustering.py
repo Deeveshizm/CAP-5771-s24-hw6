@@ -198,6 +198,28 @@ def jarvis_patrick_clustering():
     # axes are the parameters used, with # \sigma on the horizontal axis
     # and \xi and the vertical axis. Color the points according to the SSE value
     # for the 1st plot and according to ARI in the second plot.
+
+    k_values = [item[0] for item in best_results['results']]
+    smin_values = [item[1] for item in best_results['results']]
+    aris = [item[2] for item in best_results['results']]
+    sses = [item[3] for item in best_results['results']]
+
+    plt.scatter(k_values, smin_values, c=aris, cmap='viridis', s=25)
+    plt.title('Clusters with Largest ARI')
+    plt.xlabel('Feature 1')
+    plt.ylabel('Feature 2')
+    plt.savefig('jarvis_cluster_scatterplot_with_largest_ARI.png')
+    plt.show()
+    plt.close()
+
+    plt.scatter(k_values, smin_values, c=sses, cmap='viridis', s=25)
+    plt.title('Clusters with Smallest SSE')
+    plt.xlabel('Feature 1')
+    plt.ylabel('Feature 2')
+    plt.savefig('jarvis_cluster_scatterplot_with_smallest_SSE.png')
+    plt.show()
+    plt.close()
+
     ks = np.array([group["k"] for group in groups.values()])
     smins = np.array([group["smin"] for group in groups.values()])
     ARIs = np.array([group["ARI"] for group in groups.values()])
@@ -211,6 +233,7 @@ def jarvis_patrick_clustering():
     plt.title('Clusters with Largest ARI')
     plt.xlabel('Feature 1')
     plt.ylabel('Feature 2')
+    plt.savefig('jarvis_cluster_scatterplot_with_largest_ARI.png')
     plt.close()
     answers["cluster scatterplot with largest ARI"] = plot_ARI
     
@@ -218,6 +241,7 @@ def jarvis_patrick_clustering():
     plt.title('Clusters with Smallest SSE')
     plt.xlabel('Feature 1')
     plt.ylabel('Feature 2')
+    plt.savefig('jarvis_cluster_scatterplot_with_smallest_SSE.png')
     plt.close()
     answers["cluster scatterplot with smallest SSE"] = plot_SSE
 
