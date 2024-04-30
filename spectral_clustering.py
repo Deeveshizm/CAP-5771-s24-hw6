@@ -235,7 +235,7 @@ def spectral_clustering():
     # groups[i] = {"sigma": 0.1, "ARI": 0.1, "SSE": 0.1}
 
     # groups is the dictionary above
-    answers["cluster parameters"] = groups['0']
+    answers["cluster parameters"] = groups
     answers["1st group, SSE"] = groups['0']["SSE"]
 
     # Identify the cluster with the lowest value of ARI. This implies
