@@ -281,37 +281,33 @@ def spectral_clustering():
     # ax_sse.set_ylabel('SSE')
     # ax_sse.grid(True)
 
-    fig_ari, ax_ari = plt.subplots()
-    plot_ARI = ax_ari.scatter(max_ari_data[:, 0], max_ari_data[:, 1], c=max_ari_labels, cmap='viridis', s=25)
-    ax_ari.set_title('Clusters with Largest ARI')
-    ax_ari.set_xlabel('Feature 1')
-    ax_ari.set_ylabel('Feature 2')
-    fig_ari.colorbar(plot_ARI)  # Show color scale
-    plt.close(fig_ari)
+    plot_ARI = plt.scatter(max_ari_data[:, 0], max_ari_data[:, 1], c=max_ari_labels, cmap='viridis', s=25)
+    plt.set_title('Clusters with Largest ARI')
+    plt.set_xlabel('Feature 1')
+    plt.set_ylabel('Feature 2')
+    plt.close()
+
 
     answers["cluster scatterplot with largest ARI"] = plot_ARI
     
-    fig_sse, ax_sse = plt.subplots()
-    plot_SSE = ax_sse.scatter(min_sse_data[:, 0], min_sse_data[:, 1], c=min_sse_labels, cmap='viridis', s=25)
-    ax_sse.set_title('Clusters with Smallest SSE')
-    ax_sse.set_xlabel('Feature 1')
-    ax_sse.set_ylabel('Feature 2')
-    fig_sse.colorbar(plot_SSE)  # Show color scale
-    plt.close(fig_sse)
+    plot_SSE = plt.scatter(min_sse_data[:, 0], min_sse_data[:, 1], c=min_sse_labels, cmap='viridis', s=25)
+    plt.title('Clusters with Smallest SSE')
+    plt.xlabel('Feature 1')
+    plt.ylabel('Feature 2')
+    plt.close()
 
     answers["cluster scatterplot with smallest SSE"] = plot_SSE
 
 
     # Plot of the eigenvalues (smallest to largest) as a line plot.
     # Use the plt.plot() function. Make sure to include a title, axis labels, and a grid.
-    fig_eig, ax_eig = plt.subplots()
-    plot_eig = ax_eig.plot(np.sort(eigenvalues), linestyle='-')
-    ax_eig.set_title("Sorted Eigenvalues Plot")
-    ax_eig.set_xlabel("Index")
-    ax_eig.set_ylabel("Eigenvalue")
-    ax_eig.grid(True)
-    plt.show()
-    answers["eigenvalue plot"] = plot_eig[0]
+    plot_eig = plt.plot(np.sort(eigenvalues), linestyle='-')
+    plt.title("Sorted Eigenvalues Plot")
+    plt.xlabel("Index")
+    plt.ylabel("Eigenvalue")
+    plt.grid(True)
+    plt.close()
+    answers["eigenvalue plot"] = plot_eig
 
 
     # Pick the parameters that give the largest value of ARI, and apply these
