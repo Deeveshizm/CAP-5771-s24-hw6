@@ -204,7 +204,7 @@ def spectral_clustering():
         index_start = 1000 * i
         index_end = 1000 * (i + 1)
         computed_labels, SSE, ARI, eigenvalue = spectral(data[index_start:index_end], labels[index_start:index_end], params_dict)
-        groups[str(i)] = {"sigma": float(final_sigma), "ARI": float(ARI), "SSE": float(SSE)}
+        groups[i] = {"sigma": float(final_sigma), "ARI": float(ARI), "SSE": float(SSE)}
         eigenvalues = np.append(eigenvalues, eigenvalue, axis=0)
         
         if i==0:
@@ -236,7 +236,7 @@ def spectral_clustering():
 
     # groups is the dictionary above
     answers["cluster parameters"] = groups
-    answers["1st group, SSE"] = groups['0']["SSE"]
+    answers["1st group, SSE"] = groups[0]["SSE"]
 
     # Identify the cluster with the lowest value of ARI. This implies
     # that you set the cluster number to 5 when applying the spectral
