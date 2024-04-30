@@ -247,6 +247,22 @@ def spectral_clustering():
     # and \xi and the vertical axis. Color the points according to the SSE value
     # for the 1st plot and according to ARI in the second plot.
 
+    plt.plot(sigma, ari)
+    plt.title('ARI vs Sigma')
+    plt.xlabel('Sigma')
+    plt.ylabel('ARI')
+    plt.savefig('spectral_ARI_vs_Sigma.png')
+    plt.show()
+    plt.close()
+
+    plt.plot(sigma, sse)
+    plt.title('SSE vs Sigma')
+    plt.xlabel('Sigma')
+    plt.ylabel('SSE')
+    plt.savefig('spectral_SSE_vs_Sigma.png')
+    plt.show()
+    plt.close()
+
     # Choose the cluster with the largest value for ARI and plot it as a 2D scatter plot.
     # Do the same for the cluster with the smallest value of SSE.
     # All plots must have x and y labels, a title, and the grid overlay.
@@ -285,6 +301,7 @@ def spectral_clustering():
     plt.title('Clusters with Largest ARI')
     plt.xlabel('Feature 1')
     plt.ylabel('Feature 2')
+    plt.savefig('spectral_cluster scatterplot with largest ARI.png')
     plt.close()
 
     # fig_ari, ax_ari = plt.subplots()
@@ -305,6 +322,7 @@ def spectral_clustering():
     plt.title('Clusters with Smallest SSE')
     plt.xlabel('Feature 1')
     plt.ylabel('Feature 2')
+    plt.savefig('spectral_cluster scatterplot with smallest SSE.png')
     plt.close()
 
     # fig_sse, ax_sse = plt.subplots()
@@ -326,6 +344,7 @@ def spectral_clustering():
     plt.xlabel("Index")
     plt.ylabel("Eigenvalue")
     plt.grid(True)
+    plt.savefig('spectral_sorted_eigenvalues_plot.png')
     plt.close()
     answers["eigenvalue plot"] = plot_eig
 
