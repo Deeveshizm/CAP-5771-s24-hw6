@@ -141,7 +141,7 @@ def jarvis_patrick_clustering():
                 best_params_sse = {'k': k, 'smin': smin, 'SSE': SSE}
 
     # Organize results into a dictionary
-    answers = {
+    best_results = {
         "results": results,
         "best_params_ari": best_params_ari,
         "best_params_sse": best_params_sse
