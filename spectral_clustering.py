@@ -204,7 +204,7 @@ def spectral_clustering():
         index_start = 1000 * i
         index_end = 1000 * (i + 1)
         computed_labels, SSE, ARI, eigenvalue = spectral(data[index_start:index_end], labels[index_start:index_end], params_dict)
-        groups[i] = {"sigma": final_sigma, "ARI": ARI, "SSE": SSE}
+        groups[i] = {"sigma": float(final_sigma), "ARI": float(ARI), "SSE": float(SSE)}
         eigenvalues = np.append(eigenvalues, eigenvalue, axis=0)
         
         if i==0:
@@ -235,7 +235,7 @@ def spectral_clustering():
     # groups[i] = {"sigma": 0.1, "ARI": 0.1, "SSE": 0.1}
 
     # groups is the dictionary above
-    answers["cluster parameters"] = groups
+    answers["cluster parameters"] = groups[0]
     answers["1st group, SSE"] = groups[0]["SSE"]
 
     # Identify the cluster with the lowest value of ARI. This implies
@@ -304,13 +304,14 @@ def spectral_clustering():
 
     # Plot of the eigenvalues (smallest to largest) as a line plot.
     # Use the plt.plot() function. Make sure to include a title, axis labels, and a grid.
-    plot_eig, ax_eig = plt.subplots()
-    ax_eig.plot(np.sort(eigenvalues), marker='o', linestyle='-')
+    fig_eig, ax_eig = plt.subplots()
+    plot_eig = ax_eig.plot(np.sort(eigenvalues), linestyle='-')
     ax_eig.set_title("Sorted Eigenvalues Plot")
     ax_eig.set_xlabel("Index")
     ax_eig.set_ylabel("Eigenvalue")
     ax_eig.grid(True)
-    answers["eigenvalue plot"] = plot_eig
+    plt.show()
+    answers["eigenvalue plot"] = plot_eig[0]
 
 
     # Pick the parameters that give the largest value of ARI, and apply these
