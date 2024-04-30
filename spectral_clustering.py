@@ -281,40 +281,40 @@ def spectral_clustering():
     # ax_sse.set_ylabel('SSE')
     # ax_sse.grid(True)
 
-    # plot_ARI = plt.scatter(max_ari_data[:, 0], max_ari_data[:, 1], c=max_ari_labels, cmap='viridis', s=25)
-    # plt.set_title('Clusters with Largest ARI')
-    # plt.set_xlabel('Feature 1')
-    # plt.set_ylabel('Feature 2')
-    # plt.close()
+    plot_ARI = plt.scatter(max_ari_data[:, 0], max_ari_data[:, 1], c=max_ari_labels, cmap='viridis', s=25)
+    plt.set_title('Clusters with Largest ARI')
+    plt.set_xlabel('Feature 1')
+    plt.set_ylabel('Feature 2')
+    plt.close()
 
-    fig_ari, ax_ari = plt.subplots()
-    plot_ARI = ax_ari.scatter(max_ari_data[:, 0], max_ari_data[:, 1], c=max_ari_labels, cmap='viridis', s=25)
-    ax_ari.set_title('Clusters with Largest ARI')
-    ax_ari.set_xlabel('Feature 1')
-    ax_ari.set_ylabel('Feature 2')
-    fig_ari.colorbar(plot_ARI)  # Show color scale
-    plt.show()
-    plt.close(fig_ari)
+    # fig_ari, ax_ari = plt.subplots()
+    # plot_ARI = ax_ari.scatter(max_ari_data[:, 0], max_ari_data[:, 1], c=max_ari_labels, cmap='viridis', s=25)
+    # ax_ari.set_title('Clusters with Largest ARI')
+    # ax_ari.set_xlabel('Feature 1')
+    # ax_ari.set_ylabel('Feature 2')
+    # fig_ari.colorbar(plot_ARI)  # Show color scale
+    # plt.show()
+    # plt.close(fig_ari)
 
     answers["cluster scatterplot with largest ARI"] = plot_ARI
 
 
     
     
-    # plot_SSE = plt.scatter(min_sse_data[:, 0], min_sse_data[:, 1], c=min_sse_labels, cmap='viridis', s=25)
-    # plt.title('Clusters with Smallest SSE')
-    # plt.xlabel('Feature 1')
-    # plt.ylabel('Feature 2')
-    # plt.close()
+    plot_SSE = plt.scatter(min_sse_data[:, 0], min_sse_data[:, 1], c=min_sse_labels, cmap='viridis', s=25)
+    plt.title('Clusters with Smallest SSE')
+    plt.xlabel('Feature 1')
+    plt.ylabel('Feature 2')
+    plt.close()
 
-    fig_sse, ax_sse = plt.subplots()
-    plot_SSE = ax_sse.scatter(min_sse_data[:, 0], min_sse_data[:, 1], c=min_sse_labels, cmap='viridis', s=25)
-    ax_sse.set_title('Clusters with Largest ARI')
-    ax_sse.set_xlabel('Feature 1')
-    ax_sse.set_ylabel('Feature 2')
-    fig_sse.colorbar(plot_SSE)  # Show color scale
-    plt.show()
-    plt.close(fig_sse)
+    # fig_sse, ax_sse = plt.subplots()
+    # plot_SSE = ax_sse.scatter(min_sse_data[:, 0], min_sse_data[:, 1], c=min_sse_labels, cmap='viridis', s=25)
+    # ax_sse.set_title('Clusters with Largest ARI')
+    # ax_sse.set_xlabel('Feature 1')
+    # ax_sse.set_ylabel('Feature 2')
+    # fig_sse.colorbar(plot_SSE)  # Show color scale
+    # plt.show()
+    # plt.close(fig_sse)
 
     answers["cluster scatterplot with smallest SSE"] = plot_SSE
 
