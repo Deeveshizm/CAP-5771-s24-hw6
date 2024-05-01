@@ -149,9 +149,8 @@ def jarvis_patrick(
     computed_labels, cluster_centers, cluster_map = dbscan_custom(adjacency_matrix, data, smin)
     SSE = calculate_sse(data, computed_labels, cluster_centers, cluster_map)
 
-    # true_labels = np.random.randint(0, 2, size=50)  # Placeholder for true labels
     ARI = adjusted_rand_index(labels, computed_labels)
-    ari_orig=adjusted_rand_index(labels,computed_labels)
+
 
  
     return computed_labels, SSE, ARI
@@ -171,15 +170,12 @@ def jarvis_patrick_clustering():
     max_ari = -np.inf  # Smallest possible float
     min_sse = np.inf   # Largest possible float
 
-    # Initialize variables for recording the parameters corresponding to max ARI and min SSE
-    k_for_max_ari, k_for_min_sse = 0, 0
-    smin_for_max_ari, smin_for_min_sse = 0, 0
+
+
 
     # Define the range of parameters for the parameter study
     k_values = np.linspace(3, 8, 6, dtype=int)
     smin_values = np.linspace(4, 10, 7, dtype=int)
-    ari_list = []
-    sse_list = []
     # Load data
     data = np.load('question1_cluster_data.npy')[:5000]
     labels = np.load('question1_cluster_labels.npy')[:5000]
@@ -291,8 +287,7 @@ def jarvis_patrick_clustering():
     plt.show()
     plt.close()
 
-    ks = np.array([group["k"] for group in groups.values()])
-    smins = np.array([group["smin"] for group in groups.values()])
+
     ARIs = np.array([group["ARI"] for group in groups.values()])
     SSEs = np.array([group["SSE"] for group in groups.values()])
     # Choose the cluster with the largest value for ARI and plot it as a 2D scatter plot.
@@ -334,7 +329,7 @@ def jarvis_patrick_clustering():
     # A single float
     answers["std_SSEs"] = float(np.std(SSEs))
 
-    return answers, results
+    return answers
 
 
 
