@@ -339,36 +339,20 @@ def spectral_clustering():
 
     # Plot of the eigenvalues (smallest to largest) as a line plot.
     # Use the plt.plot() function. Make sure to include a title, axis labels, and a grid.
-    fig, ax = plt.subplots()
 
-    # Iterate through the dictionary and plot each list
-    for key, values in eigenvalues.items():
-        sorted_values = np.sort(values)  # Sort the eigenvalues
-        ax.plot(sorted_values, label=f'data group{key + 1}', linestyle='-')  # Plot and label each line
-    
+
+    plot_eig = plt.plot(eigenvalues[0], label='Data Group 1')
+    plt.plot(eigenvalues[1], label='Data Group 2')
+    plt.plot(eigenvalues[2], label='Data Group 3')
+    plt.plot(eigenvalues[3], label='Data Group 4')
+    plt.plot(eigenvalues[4], label='Data Group 5')
+    plt.legend()
     plt.title("Sorted Eigenvalues Plot")
     plt.xlabel("Index")
     plt.ylabel("Eigenvalue")
     plt.grid(True)
     plt.savefig('spectral_sorted_eigenvalues_plot.png')
-    # Add a legend
-    ax.legend()
-
-    # Show the plot
-    plt.show()
-
-    # Assign the plot to a variable
-    plot_eig = ax
-
-    # for i in range(len(eigenvalues)):
-    #     plot_eig = plt.plot(np.sort(eigenvalues[i]), label=f'Data Group {i+1}')
-    # plt.legend()
-    # plt.title("Sorted Eigenvalues Plot")
-    # plt.xlabel("Index")
-    # plt.ylabel("Eigenvalue")
-    # plt.grid(True)
-    # plt.savefig('spectral_sorted_eigenvalues_plot.png')
-    # plt.close()
+    plt.close()
     answers["eigenvalue plot"] = plot_eig
 
 
