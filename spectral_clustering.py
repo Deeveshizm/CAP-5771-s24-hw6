@@ -196,7 +196,7 @@ def spectral_clustering():
     min_sse_labels = None
 
     final_sigma = sigma_for_max_ari
-    eigenvalues = np.array([])
+    eigenvalues = {}
     
     for i in range(5):
         params_dict['sigma'] = final_sigma
@@ -205,7 +205,7 @@ def spectral_clustering():
         index_end = 1000 * (i + 1)
         computed_labels, SSE, ARI, eigenvalue = spectral(data[index_start:index_end], labels[index_start:index_end], params_dict)
         groups[i] = {"sigma": float(final_sigma), "ARI": float(ARI), "SSE": float(SSE)}
-        eigenvalues = np.append(eigenvalues, eigenvalue, axis=0)
+        eigenvalues[i] = eigenvalue
         
         if i==0:
             min_sse = SSE
@@ -339,7 +339,9 @@ def spectral_clustering():
 
     # Plot of the eigenvalues (smallest to largest) as a line plot.
     # Use the plt.plot() function. Make sure to include a title, axis labels, and a grid.
-    plot_eig = plt.plot(np.sort(eigenvalues), linestyle='-')
+    for i in range(len(eigenvalues)):
+        plt.plot(np.sort(eigenvalues[i]), label=f'Data Group {i+1}')
+    plot_eig = plt.legend()
     plt.title("Sorted Eigenvalues Plot")
     plt.xlabel("Index")
     plt.ylabel("Eigenvalue")
