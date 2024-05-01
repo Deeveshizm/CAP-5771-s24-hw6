@@ -206,17 +206,17 @@ def jarvis_patrick_clustering():
 
     plt.scatter(k_values, smin_values, c=aris, cmap='viridis', s=25)
     plt.title('Clusters with Largest ARI')
-    plt.xlabel('Feature 1')
-    plt.ylabel('Feature 2')
-    plt.savefig('jarvis_cluster_scatterplot_with_largest_ARI.png')
+    plt.xlabel('k')
+    plt.ylabel('smin')
+    plt.savefig('jarvis_k_vs_smin_ARI.png')
     plt.show()
     plt.close()
 
     plt.scatter(k_values, smin_values, c=sses, cmap='viridis', s=25)
     plt.title('Clusters with Smallest SSE')
-    plt.xlabel('Feature 1')
-    plt.ylabel('Feature 2')
-    plt.savefig('jarvis_cluster_scatterplot_with_smallest_SSE.png')
+    plt.xlabel('k')
+    plt.ylabel('smin')
+    plt.savefig('jarvis_k_vs_smin_SSE.png')
     plt.show()
     plt.close()
 
